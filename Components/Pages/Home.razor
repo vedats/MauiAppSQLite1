@@ -1,0 +1,34 @@
+﻿@page "/"
+@using Models
+@inject Services.DatabaseService DatabaseService
+
+<h3>Items</h3>
+
+<div>
+    <input @bind="name" placeholder="Name" />
+    <input @bind="description" placeholder="Description" />
+    <button @onclick="AddItem">Add Item</button>
+</div>
+<ul>
+    @foreach (var item in items)
+    {
+        <li>@item.Name - @item.Description</li>
+    }
+</ul>
+@code {
+    private string name;
+    private string description;
+    private List<Item> items = new();
+
+    protected override async Task OnInitializedAsync() => items = await DatabaseService.GetItemsAsync();
+
+    private async Task AddItem()
+    {
+        var newItem = new Item { Name = name, Description = description };
+        await DatabaseService.SaveItemAsync(newItem);
+        items = await DatabaseService.GetItemsAsync();
+        name = string.Empty;
+        description = string.Empty;
+    }
+
+}
